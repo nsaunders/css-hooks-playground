@@ -13,7 +13,7 @@ const [hooks, css] = createHooks({
   d: ":has([name='d']:checked) &",
   e: ":has([name='e']:checked) &",
   f: ":has([name='f']:checked) &",
-  hover: { and: ["&:hover", "@media (hover: hover)"] },
+  hover: all("&:hover", "@media (hover:hover)"),
 });
 
 const mutedColor = "#999";
