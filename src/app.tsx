@@ -39,10 +39,28 @@ export function App() {
           <label
             key={x}
             style={css(
-              { textAlign: "center" },
-              [x, { background: "black", color: "white" }],
-              [{ and: ["hover", { not: x }] }, { background: "#ccc" }],
-              [{ and: ["hover", x] }, { background: "#333" }]
+              {
+                textAlign: "center",
+              },
+              [
+                x,
+                {
+                  background: "black",
+                  color: "white",
+                },
+              ],
+              [
+                { and: ["hover", { not: x }] },
+                {
+                  background: "#ccc",
+                },
+              ],
+              [
+                { and: ["hover", x] },
+                {
+                  background: "#333",
+                },
+              ]
             )}
           >
             {x}
@@ -59,7 +77,9 @@ export function App() {
         <li
           style={css([
             { or: ["a", "b", "c", "d", "e", "f"] },
-            { color: mutedColor },
+            {
+              color: mutedColor,
+            },
           ])}
         >
           None selected
@@ -67,7 +87,9 @@ export function App() {
         <li
           style={css([
             { not: { or: ["a", "b", "c", "d", "e", "f"] } },
-            { color: mutedColor },
+            {
+              color: mutedColor,
+            },
           ])}
         >
           Any selected
@@ -75,7 +97,9 @@ export function App() {
         <li
           style={css([
             { not: { and: ["a", "b", "c", "d", "e", "f"] } },
-            { color: mutedColor },
+            {
+              color: mutedColor,
+            },
           ])}
         >
           All selected
@@ -91,7 +115,9 @@ export function App() {
                 ],
               },
             },
-            { color: mutedColor },
+            {
+              color: mutedColor,
+            },
           ])}
         >
           ab, cd, or ef selected
@@ -106,7 +132,9 @@ export function App() {
                 ],
               },
             },
-            { color: mutedColor },
+            {
+              color: mutedColor,
+            },
           ])}
         >
           abc xor def selected
