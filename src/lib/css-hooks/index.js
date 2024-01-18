@@ -167,10 +167,10 @@ function buildHooksSystem(stringify = genericStringify) {
       return sheet;
     }
 
-    function css(items) {
+    function css() {
       const style = {};
       let conditionCount = 0;
-      for (const item of items) {
+      for (const item of arguments) {
         if (!item || typeof item !== "object") {
           continue;
         }

@@ -12,7 +12,7 @@ export type StringifyFn = (
 export type HooksFn = () => string;
 
 export type CssFn<HookName, CSSProperties> = (
-  rules: (CSSProperties | [Condition<HookName>, CSSProperties])[]
+  ...rules: (CSSProperties | [Condition<HookName>, CSSProperties])[]
 ) => CSSProperties;
 
 export type HookImpl =
