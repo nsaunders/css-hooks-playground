@@ -38,12 +38,12 @@ export function App() {
         {items.map((x) => (
           <label
             key={x}
-            style={css(
+            style={css([
               { textAlign: "center" },
               [x, { background: "black", color: "white" }],
               [{ and: ["hover", { not: x }] }, { background: "#ccc" }],
-              [{ and: ["hover", x] }, { background: "#333" }]
-            )}
+              [{ and: ["hover", x] }, { background: "#333" }],
+            ])}
           >
             {x}
             <br />
@@ -58,55 +58,62 @@ export function App() {
       <ul style={{ fontSize: "1.5em", fontWeight: 700 }}>
         <li
           style={css([
-            { or: ["a", "b", "c", "d", "e", "f"] },
-            { color: mutedColor },
+            [{ or: ["a", "b", "c", "d", "e", "f"] }, { color: mutedColor }],
           ])}
         >
           None selected
         </li>
         <li
           style={css([
-            { not: { or: ["a", "b", "c", "d", "e", "f"] } },
-            { color: mutedColor },
+            [
+              { not: { or: ["a", "b", "c", "d", "e", "f"] } },
+              { color: mutedColor },
+            ],
           ])}
         >
           Any selected
         </li>
         <li
           style={css([
-            { not: { and: ["a", "b", "c", "d", "e", "f"] } },
-            { color: mutedColor },
+            [
+              { not: { and: ["a", "b", "c", "d", "e", "f"] } },
+              { color: mutedColor },
+            ],
           ])}
         >
           All selected
         </li>
         <li
           style={css([
-            {
-              not: {
-                or: [
-                  { and: ["a", "b"] },
-                  { and: ["c", "d"] },
-                  { and: ["e", "f"] },
-                ],
+            [
+              {
+                not: {
+                  or: [
+                    { and: ["a", "b"] },
+                    { and: ["c", "d"] },
+                    { and: ["e", "f"] },
+                  ],
+                },
               },
-            },
-            { color: mutedColor },
+              { color: mutedColor },
+            ],
           ])}
         >
           ab, cd, or ef selected
         </li>
         <li
           style={css([
-            {
-              not: {
-                or: [
-                  { and: ["a", "b", "c", { not: { or: ["d", "e", "f"] } }] },
-                  { and: ["d", "e", "f", { not: { or: ["a", "b", "c"] } }] },
-                ],
+            [
+              {
+                not: {
+                  or: [
+                    { and: ["a", "b", "c", { not: { or: ["d", "e", "f"] } }] },
+                    { and: ["d", "e", "f", { not: { or: ["a", "b", "c"] } }] },
+                  ],
+                },
               },
-            },
-            { color: mutedColor },
+              { color: mutedColor },
+            ],
           ])}
         >
           abc xor def selected

@@ -62,7 +62,7 @@ function normalizeCondition(cond) {
   return { [operator]: [head, normalizeCondition({ [operator]: tail })] };
 }
 
-export function buildHooksSystem(stringify = genericStringify) {
+function buildHooksSystem(stringify = genericStringify) {
   return function createHooks(config, options) {
     const [space, newline] = options && options.debug ? [" ", "\n"] : ["", ""];
     const indent = `${space}${space}`;
@@ -167,8 +167,7 @@ export function buildHooksSystem(stringify = genericStringify) {
       return sheet;
     }
 
-    function css() {
-      const items = arguments;
+    function css(items) {
       const style = {};
       let conditionCount = 0;
       for (const item of items) {
@@ -234,3 +233,5 @@ export function buildHooksSystem(stringify = genericStringify) {
     return [hooks, css];
   };
 }
+
+export { buildHooksSystem };
