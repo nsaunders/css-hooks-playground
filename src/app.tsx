@@ -18,7 +18,6 @@ const [hooks, css] = createHooks({
 const mutedColor = "#999";
 
 export function App() {
-  console.log("No re-renders");
   return (
     <div>
       <style dangerouslySetInnerHTML={{ __html: hooks() }} />
