@@ -1,5 +1,6 @@
 import { buildHooksSystem } from "./lib/css-hooks";
 import { stringifyValue } from "@css-hooks/react";
+import { select, all, any, not } from "./lib/css-hooks/helpers";
 
 import { CSSProperties } from "react";
 
@@ -26,28 +27,19 @@ export function App() {
           <label
             key={x}
             style={css(
-              {
+              select({
                 textAlign: "center",
-              },
-              [
-                x,
-                {
-                  background: "black",
-                  color: "white",
-                },
-              ],
-              [
-                { and: ["hover", { not: x }] },
-                {
-                  background: "#ccc",
-                },
-              ],
-              [
-                { and: ["hover", x] },
-                {
-                  background: "#333",
-                },
-              ]
+              }).always,
+              select({
+                background: "black",
+                color: "white",
+              }).where(x),
+              select({
+                background: "#ccc",
+              }).where({ and: ["hover", { not: x }] }),
+              select({
+                background: "#333",
+              }).where(all("hover", x))
             )}
           >
             {x}
@@ -58,67 +50,52 @@ export function App() {
       </div>
       <ul style={{ fontSize: "1.5em", fontWeight: 700 }}>
         <li
-          style={css([
-            { or: ["a", "b", "c", "d", "e", "f"] },
-            {
+          style={css(
+            select({
               color: mutedColor,
-            },
-          ])}
+            }).where(any("a", "b", "c", "d", "e", "f"))
+          )}
         >
           None selected
         </li>
         <li
-          style={css([
-            { not: { or: ["a", "b", "c", "d", "e", "f"] } },
-            {
+          style={css(
+            select({
               color: mutedColor,
-            },
-          ])}
+            }).where(not(any("a", "b", "c", "d", "e", "f")))
+          )}
         >
           Any selected
         </li>
         <li
-          style={css([
-            { not: { and: ["a", "b", "c", "d", "e", "f"] } },
-            {
-              color: mutedColor,
-            },
-          ])}
+          style={css(
+            select({ color: mutedColor }).where(
+              not(all("a", "b", "c", "d", "e", "f"))
+            )
+          )}
         >
           All selected
         </li>
         <li
-          style={css([
-            {
-              not: {
-                or: [
-                  { and: ["a", "b"] },
-                  { and: ["c", "d"] },
-                  { and: ["e", "f"] },
-                ],
-              },
-            },
-            {
-              color: mutedColor,
-            },
-          ])}
+          style={css(
+            select({ color: mutedColor }).where(
+              not(any(all("a", "b"), all("c", "d"), all("e", "f")))
+            )
+          )}
         >
           ab, cd, or ef selected
         </li>
         <li
-          style={css([
-            {
-              not: {
-                or: [
-                  { and: ["a", "b", "c", { not: { or: ["d", "e", "f"] } }] },
-                  { and: ["d", "e", "f", { not: { or: ["a", "b", "c"] } }] },
-                ],
-              },
-            },
-            {
-              color: mutedColor,
-            },
-          ])}
+          style={css(
+            select({ color: mutedColor }).where(
+              not(
+                any(
+                  all("a", "b", "c", not(any("d", "e", "f"))),
+                  all("d", "e", "f", not(any("a", "b", "c")))
+                )
+              )
+            )
+          )}
         >
           abc xor def selected
         </li>
