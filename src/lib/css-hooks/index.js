@@ -167,7 +167,8 @@ export function buildHooksSystem(stringify = genericStringify) {
       return sheet;
     }
 
-    function css(items) {
+    function css() {
+      const items = arguments;
       const style = {};
       let conditionCount = 0;
       for (const item of items) {
