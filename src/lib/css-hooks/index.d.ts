@@ -19,8 +19,10 @@ export type HookImpl =
   | `${string}&${string}`
   | `@${"media" | "container" | "supports"} ${string}`;
 
-export type CreateHooksFn<CSSProperties> = <const HookName>(
-  config: Record<HookName, Condition<HookImpl>>
+export type CreateHooksFn<CSSProperties> = <
+  const Config extends Record<HookName, Condition<HookImpl>>
+>(
+  config: Config
 ) => [HooksFn, CssFn<HookName, CSSProperties>];
 
 declare function buildHooksSystem<CSSProperties>(
