@@ -1,41 +1,29 @@
 import { buildHooksSystem } from "./lib/css-hooks";
 import { stringifyValue } from "@css-hooks/react";
 
-import { CSSProperties, useReducer } from "react";
+import { CSSProperties } from "react";
 
 const createHooks = buildHooksSystem<CSSProperties>(stringifyValue);
 
 const [hooks, css] = createHooks({
-  a: ".a &",
-  b: ".b &",
-  c: ".c &",
-  d: ".d &",
-  e: ".e &",
-  f: ".f &",
+  a: ":has([name='a']:checked) &",
+  b: ":has([name='b']:checked) &",
+  c: ":has([name='c']:checked) &",
+  d: ":has([name='d']:checked) &",
+  e: ":has([name='e']:checked) &",
+  f: ":has([name='f']:checked) &",
   hover: "&:hover",
 });
 
 const mutedColor = "#999";
 
 export function App() {
-  const items = ["a", "b", "c", "d", "e", "f"] as const;
-  type State = { [k in (typeof items)[number]]: boolean };
-
-  const [state, dispatch] = useReducer(
-    (state: State, action: Partial<State>) => ({ ...state, ...action }),
-    { a: false, b: false, c: false, d: false, e: false, f: false }
-  );
-
+  console.log("No re-renders");
   return (
-    <div
-      className={Object.entries(state)
-        .filter(([, v]) => v)
-        .map(([k]) => k)
-        .join(" ")}
-    >
+    <div>
       <style dangerouslySetInnerHTML={{ __html: hooks() }} />
       <div style={{ display: "flex" }}>
-        {items.map((x) => (
+        {(["a", "b", "c", "d", "e", "f"] as const).map((x) => (
           <label
             key={x}
             style={css(
@@ -65,11 +53,7 @@ export function App() {
           >
             {x}
             <br />
-            <input
-              type="checkbox"
-              checked={state[x]}
-              onChange={(e) => dispatch({ [x]: e.target.checked })}
-            />
+            <input type="checkbox" name={x} />
           </label>
         ))}
       </div>
