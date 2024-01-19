@@ -10,7 +10,7 @@ css(
   $("&:disabled", {
     color: "#999",
   }),
-  $(and("&:enabled", "&:hover"), {
+  $(all("&:enabled", "&:hover"), {
     color: "pink",
   }),
 )
