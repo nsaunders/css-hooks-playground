@@ -36,7 +36,7 @@ export function App() {
               }).where(x),
               select({
                 background: "#ccc",
-              }).where({ and: ["hover", { not: x }] }),
+              }).where(all("hover", not(x))),
               select({
                 background: "#333",
               }).where(all("hover", x))
