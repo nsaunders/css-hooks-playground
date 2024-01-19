@@ -9,8 +9,6 @@ export type StringifyFn = (
   value: string
 ) => string | null;
 
-export type HooksFn = () => string;
-
 export type CssFn<HookName, CSSProperties> = (
   ...rules: (CSSProperties | [Condition<HookName>, CSSProperties])[]
 ) => CSSProperties;
@@ -20,11 +18,22 @@ export type HookImpl =
   | `@${"media" | "container" | "supports"} ${string}`;
 
 export type CreateHooksFn<CSSProperties> = <
-  const Config extends Record<string, Condition<HookImpl>>
->(
-  config: Config
-) => Config extends Record<infer HookName, unknown>
-  ? [HooksFn, CssFn<HookName, CSSProperties>]
+  const HooksConfig extends Record<string, Condition<HookImpl>>
+>(config: {
+  hooks: HooksConfig;
+
+  fallback: "revert-layer" | "unset";
+
+  debug?: boolean;
+
+  /** @internal */
+  hookNameToId?: (
+    hookName: HooksConfig extends Record<infer HookName, unknown>
+      ? HookName
+      : string
+  ) => string;
+}) => HooksConfig extends Record<infer HookName, unknown>
+  ? { styleSheet: () => string; css: CssFn<HookName, CSSProperties> }
   : never;
 
 declare function buildHooksSystem<CSSProperties>(

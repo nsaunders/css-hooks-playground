@@ -63,20 +63,25 @@ function normalizeCondition(cond) {
 }
 
 export function buildHooksSystem(stringify = genericStringify) {
-  return function createHooks(config, options) {
-    const [space, newline] = options && options.debug ? [" ", "\n"] : ["", ""];
+  return function createHooks({
+    hooks: hooksConfig,
+    fallback,
+    debug,
+    hookNameToId: customHookNameToId,
+  }) {
+    const [space, newline] = debug ? [" ", "\n"] : ["", ""];
     const indent = `${space}${space}`;
 
     const hookNameToId =
-      (options || {}).hookNameToId ||
+      customHookNameToId ||
       ((hookName) => {
-        const specHash = hash(config[hookName]);
-        return options && options.debug
+        const specHash = hash(hooksConfig[hookName]);
+        return debug
           ? `${hookName.replace(/[^A-Za-z0-9-]/g, "_")}-${specHash}`
           : specHash;
       });
 
-    function hooks() {
+    function styleSheet() {
       function variablePair({ id, initial, indents }) {
         return [0, 1]
           .map(
@@ -90,21 +95,24 @@ export function buildHooksSystem(stringify = genericStringify) {
 
       let sheet = `*${space}{${newline}`;
 
-      const normalizedConfig = Object.entries(config)
-        .map(([hookName, hookSpec]) => [hookName, normalizeCondition(hookSpec)])
-        .filter(([hookName, hookSpec]) => hookSpec);
+      const hooks = Object.entries(hooksConfig)
+        .map(([hookName, hookCondition]) => [
+          hookName,
+          normalizeCondition(hookCondition),
+        ])
+        .filter(([, hookCondition]) => hookCondition);
 
-      for (const [hookName, hookSpec] of normalizedConfig) {
-        (function it(id, hookSpec, initial = 0) {
-          if (hookSpec && typeof hookSpec === "object") {
-            if ("not" in hookSpec) {
-              return it(id, hookSpec.not, 1);
+      for (const [hookName, hookCondition] of hooks) {
+        (function it(id, hookCondition, initial = 0) {
+          if (hookCondition && typeof hookCondition === "object") {
+            if ("not" in hookCondition) {
+              return it(id, hookCondition.not, 1);
             }
 
-            if ("and" in hookSpec || "or" in hookSpec) {
-              const operator = hookSpec.and ? "and" : "or";
-              it(`${id}A`, hookSpec[operator][0]);
-              it(`${id}B`, hookSpec[operator][1]);
+            if ("and" in hookCondition || "or" in hookCondition) {
+              const operator = hookCondition.and ? "and" : "or";
+              it(`${id}A`, hookCondition[operator][0]);
+              it(`${id}B`, hookCondition[operator][1]);
               if (operator === "and") {
                 sheet += `${indent}--${id}-0:${space}var(--${id}A-0)${space}var(--${id}B-0);${newline}`;
                 sheet += `${indent}--${id}-1:${space}var(--${id}A-1,${space}var(--${id}B-1));${newline}`;
@@ -116,30 +124,30 @@ export function buildHooksSystem(stringify = genericStringify) {
             }
           }
           sheet += variablePair({ id, initial, indents: 1 });
-        })(hookNameToId(hookName), hookSpec);
+        })(hookNameToId(hookName), hookCondition);
       }
 
       sheet += `}${newline}`;
 
-      for (const [hookName, hookSpec] of normalizedConfig) {
-        (function it(id, hookSpec, initial = 0) {
-          if (hookSpec && typeof hookSpec === "object") {
-            if ("not" in hookSpec) {
-              return it(id, hookSpec.not, 1);
+      for (const [hookName, hookCondition] of hooks) {
+        (function it(id, hookCondition, initial = 0) {
+          if (hookCondition && typeof hookCondition === "object") {
+            if ("not" in hookCondition) {
+              return it(id, hookCondition.not, 1);
             }
 
-            if ("and" in hookSpec || "or" in hookSpec) {
-              const operator = hookSpec.and ? "and" : "or";
-              it(`${id}A`, hookSpec[operator][0]);
-              it(`${id}B`, hookSpec[operator][1]);
+            if ("and" in hookCondition || "or" in hookCondition) {
+              const operator = hookCondition.and ? "and" : "or";
+              it(`${id}A`, hookCondition[operator][0]);
+              it(`${id}B`, hookCondition[operator][1]);
               return;
             }
           }
 
-          if (typeof hookSpec === "string") {
-            if (hookSpec[0] === "@") {
+          if (typeof hookCondition === "string") {
+            if (hookCondition[0] === "@") {
               sheet += [
-                `${hookSpec}${space}{${newline}`,
+                `${hookCondition}${space}{${newline}`,
                 `${indent}*${space}{${newline}`,
                 variablePair({
                   id,
@@ -151,7 +159,7 @@ export function buildHooksSystem(stringify = genericStringify) {
               ].join("");
             } else {
               sheet += [
-                `${hookSpec.replace(/&/g, "*")}${space}{${newline}`,
+                `${hookCondition.replace(/&/g, "*")}${space}{${newline}`,
                 variablePair({
                   id,
                   initial: initial === 0 ? 1 : 0,
@@ -161,7 +169,7 @@ export function buildHooksSystem(stringify = genericStringify) {
               ].join("");
             }
           }
-        })(hookNameToId(hookName), hookSpec);
+        })(hookNameToId(hookName), hookCondition);
       }
 
       return sheet;
@@ -170,12 +178,12 @@ export function buildHooksSystem(stringify = genericStringify) {
     function css() {
       const style = {};
       let conditionCount = 0;
-      for (const item of arguments) {
-        if (!item || typeof item !== "object") {
+      for (const rule of arguments) {
+        if (!rule || typeof rule !== "object") {
           continue;
         }
-        if (item instanceof Array && item.length === 2) {
-          let condition = normalizeCondition(item[0]);
+        if (rule instanceof Array && rule.length === 2) {
+          let condition = normalizeCondition(rule[0]);
           if (!condition) {
             continue;
           }
@@ -206,15 +214,13 @@ export function buildHooksSystem(stringify = genericStringify) {
               return name;
             })(`cond${conditionCount++}`, condition);
           }
-          for (const [property, value] of Object.entries(item[1])) {
+          for (const [property, value] of Object.entries(rule[1])) {
             const stringifiedValue = stringify(property, value);
             if (stringifiedValue === null) {
               continue;
             }
             const fallbackValue =
-              property in style
-                ? style[property]
-                : (options || {}).fallbackValue || "unset";
+              property in style ? style[property] : fallback || "unset";
             delete style[property];
             style[
               property
@@ -222,7 +228,7 @@ export function buildHooksSystem(stringify = genericStringify) {
           }
           continue;
         }
-        for (const [property, value] of Object.entries(item)) {
+        for (const [property, value] of Object.entries(rule)) {
           delete style[property];
           style[property] = value;
         }
@@ -230,7 +236,7 @@ export function buildHooksSystem(stringify = genericStringify) {
       return style;
     }
 
-    return [hooks, css];
+    return { styleSheet, css };
   };
 }
 
