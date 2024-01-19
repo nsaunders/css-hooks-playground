@@ -183,14 +183,14 @@ export function buildHooksSystem(stringify = genericStringify) {
           continue;
         }
         if (rule instanceof Array && rule.length === 2) {
-          let condition = normalizeCondition(rule[0]);
-          if (!condition) {
+          let conditionId = normalizeCondition(rule[0]);
+          if (!conditionId) {
             continue;
           }
-          if (typeof condition === "string") {
-            condition = hookNameToId(condition);
-          } else if (typeof condition === "object") {
-            condition = (function it(name, cond) {
+          if (typeof conditionId === "string") {
+            conditionId = hookNameToId(conditionId);
+          } else if (typeof conditionId === "object") {
+            conditionId = (function it(name, cond) {
               if (typeof cond === "string") {
                 return hookNameToId(cond);
               }
@@ -212,7 +212,7 @@ export function buildHooksSystem(stringify = genericStringify) {
                 }
               }
               return name;
-            })(`cond${conditionCount++}`, condition);
+            })(`cond${conditionCount++}`, conditionId);
           }
           for (const [property, value] of Object.entries(rule[1])) {
             const stringifiedValue = stringify(property, value);
@@ -224,7 +224,7 @@ export function buildHooksSystem(stringify = genericStringify) {
             delete style[property];
             style[
               property
-            ] = `var(--${condition}-1,${space}${stringifiedValue})${space}var(--${condition}-0,${space}${fallbackValue})`;
+            ] = `var(--${conditionId}-1,${space}${stringifiedValue})${space}var(--${conditionId}-0,${space}${fallbackValue})`;
           }
           continue;
         }
