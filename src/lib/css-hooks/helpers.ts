@@ -12,11 +12,9 @@ export function not<S>(not: Condition<S>) {
   return { not };
 }
 
-export function select<const Properties>(properties: Properties) {
-  return {
-    always: properties,
-    where<S>(condition: Condition<S>) {
-      return [condition, properties] as [Condition<S>, Properties];
-    },
-  };
+export function $<S, P>(
+  condition: Condition<S>,
+  properties: P
+): [Condition<S>, P] {
+  return [condition, properties];
 }

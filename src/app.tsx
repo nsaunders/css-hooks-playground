@@ -1,6 +1,25 @@
+/*
+
+// e.g.
+
+css(
+  {
+    background: "black",
+    color: "white",
+  },
+  $("&:disabled", {
+    color: "#999",
+  }),
+  $(and("&:enabled", "&:hover"), {
+    color: "pink",
+  }),
+)
+
+*/
+
 import { buildHooksSystem } from "./lib/css-hooks";
 import { stringifyValue } from "@css-hooks/react";
-import { select, all, any, not } from "./lib/css-hooks/helpers";
+import { $, all, any, not } from "./lib/css-hooks/helpers";
 
 import { CSSProperties } from "react";
 
@@ -27,19 +46,19 @@ export function App() {
           <label
             key={x}
             style={css(
-              select({
+              {
                 textAlign: "center",
-              }).always,
-              select({
+              },
+              $(x, {
                 background: "black",
                 color: "white",
-              }).where(x),
-              select({
+              }),
+              $(all("hover", not(x)), {
                 background: "#ccc",
-              }).where({ and: ["hover", { not: x }] }),
-              select({
+              }),
+              $(all("hover", x), {
                 background: "#333",
-              }).where(all("hover", x))
+              })
             )}
           >
             {x}
@@ -51,49 +70,52 @@ export function App() {
       <ul style={{ fontSize: "1.5em", fontWeight: 700 }}>
         <li
           style={css(
-            select({
+            $(any("a", "b", "c", "d", "e", "f"), {
               color: mutedColor,
-            }).where(any("a", "b", "c", "d", "e", "f"))
+            })
           )}
         >
           None selected
         </li>
         <li
           style={css(
-            select({
+            $(not(any("a", "b", "c", "d", "e", "f")), {
               color: mutedColor,
-            }).where(not(any("a", "b", "c", "d", "e", "f")))
+            })
           )}
         >
           Any selected
         </li>
         <li
           style={css(
-            select({ color: mutedColor }).where(
-              not(all("a", "b", "c", "d", "e", "f"))
-            )
+            $(not(all("a", "b", "c", "d", "e", "f")), {
+              color: mutedColor,
+            })
           )}
         >
           All selected
         </li>
         <li
           style={css(
-            select({ color: mutedColor }).where(
-              not(any(all("a", "b"), all("c", "d"), all("e", "f")))
-            )
+            $(not(any(all("a", "b"), all("c", "d"), all("e", "f"))), {
+              color: mutedColor,
+            })
           )}
         >
           ab, cd, or ef selected
         </li>
         <li
           style={css(
-            select({ color: mutedColor }).where(
+            $(
               not(
                 any(
                   all("a", "b", "c", not(any("d", "e", "f"))),
                   all("d", "e", "f", not(any("a", "b", "c")))
                 )
-              )
+              ),
+              {
+                color: mutedColor,
+              }
             )
           )}
         >
