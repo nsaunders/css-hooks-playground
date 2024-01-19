@@ -20,10 +20,12 @@ export type HookImpl =
   | `@${"media" | "container" | "supports"} ${string}`;
 
 export type CreateHooksFn<CSSProperties> = <
-  const Config extends Record<HookName, Condition<HookImpl>>
+  const Config extends Record<string, Condition<HookImpl>>
 >(
   config: Config
-) => [HooksFn, CssFn<HookName, CSSProperties>];
+) => Config extends Record<infer HookName, unknown>
+  ? [HooksFn, CssFn<HookName, CSSProperties>]
+  : never;
 
 declare function buildHooksSystem<CSSProperties>(
   stringify?: StringifyFn
