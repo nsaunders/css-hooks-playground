@@ -75,7 +75,7 @@ declare function any<A, B, C, D, E, F, G, H, I, J>(a: A, b: B, c: C, d: D, e: E,
 
 declare function not<A>(a: A): { not: A };
 
-declare function rs<HookName, CSSProperties>(
+declare function $<HookName, CSSProperties>(
   condition: Condition<HookName>,
   properties: CSSProperties
 ): [Condition<HookName>, CSSProperties];

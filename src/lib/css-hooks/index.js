@@ -246,6 +246,6 @@ export function not(not) {
   return { not };
 }
 
-export function rs(...args) {
+export function $(...args) {
   return args;
 }

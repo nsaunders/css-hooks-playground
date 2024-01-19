@@ -7,10 +7,10 @@ css(
     background: "black",
     color: "white",
   },
-  rs("&:disabled", {
+  $("&:disabled", {
     color: "#999",
   }),
-  rs(all("&:enabled", "&:hover"), {
+  $(all("&:enabled", "&:hover"), {
     color: "pink",
   }),
 )
@@ -19,7 +19,7 @@ css(
 
 import { buildHooksSystem } from "./lib/css-hooks";
 import { stringifyValue } from "@css-hooks/react";
-import { rs, all, any, not } from "./lib/css-hooks";
+import { $, all, any, not } from "./lib/css-hooks";
 
 import { CSSProperties } from "react";
 
@@ -49,14 +49,14 @@ export function App() {
               {
                 textAlign: "center",
               },
-              rs(x, {
+              $(x, {
                 background: "black",
                 color: "white",
               }),
-              rs(all("hover", not(x)), {
+              $(all("hover", not(x)), {
                 background: "#ccc",
               }),
-              rs(all("hover", x), {
+              $(all("hover", x), {
                 background: "#333",
               })
             )}
@@ -70,7 +70,7 @@ export function App() {
       <ul style={{ fontSize: "1.5em", fontWeight: 700 }}>
         <li
           style={css(
-            rs(any("a", "b", "c", "d", "e", "f"), {
+            $(any("a", "b", "c", "d", "e", "f"), {
               color: mutedColor,
             })
           )}
@@ -79,7 +79,7 @@ export function App() {
         </li>
         <li
           style={css(
-            rs(not(any("a", "b", "c", "d", "e", "f")), {
+            $(not(any("a", "b", "c", "d", "e", "f")), {
               color: mutedColor,
             })
           )}
@@ -88,7 +88,7 @@ export function App() {
         </li>
         <li
           style={css(
-            rs(not(all("a", "b", "c", "d", "e", "f")), {
+            $(not(all("a", "b", "c", "d", "e", "f")), {
               color: mutedColor,
             })
           )}
@@ -97,7 +97,7 @@ export function App() {
         </li>
         <li
           style={css(
-            rs(not(any(all("a", "b"), all("c", "d"), all("e", "f"))), {
+            $(not(any(all("a", "b"), all("c", "d"), all("e", "f"))), {
               color: mutedColor,
             })
           )}
@@ -106,7 +106,7 @@ export function App() {
         </li>
         <li
           style={css(
-            rs(
+            $(
               not(
                 any(
                   all("a", "b", "c", not(any("d", "e", "f"))),
