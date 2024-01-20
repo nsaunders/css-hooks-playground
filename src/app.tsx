@@ -1,7 +1,7 @@
 import { buildHooksSystem } from "./lib/css-hooks";
 import { stringifyValue } from "@css-hooks/react";
 
-import { CSSProperties, ReactNode } from "react";
+import { CSSProperties } from "react";
 
 const createHooks = buildHooksSystem<CSSProperties>(stringifyValue);
 
