@@ -10,9 +10,12 @@ export type StringifyFn = (
 ) => string | null;
 
 export type CssFn<HookName, CSSProperties> = (
-  ...rules: (CSSProperties & {
-    overrides?: [Condition<HookName>, CSSProperties][];
-  })[]
+  ...rules: (
+    | (CSSProperties & {
+        overrides?: [Condition<HookName>, CSSProperties][];
+      })
+    | undefined
+  )[]
 ) => CSSProperties;
 
 export type ConditionFn<HookName, CSSProperties> = (
@@ -31,6 +34,11 @@ export type CreateHooksFn<CSSProperties> = <
   fallback: "revert-layer" | "unset";
 
   debug?: boolean;
+
+  sort?: {
+    properties?: boolean;
+    overrides?: boolean;
+  };
 
   /** @internal */
   hookNameToId?: (

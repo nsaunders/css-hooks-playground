@@ -1,7 +1,7 @@
 import { buildHooksSystem } from "./lib/css-hooks";
 import { stringifyValue } from "@css-hooks/react";
 
-import { CSSProperties } from "react";
+import { CSSProperties, ReactNode } from "react";
 
 const createHooks = buildHooksSystem<CSSProperties>(stringifyValue);
 
@@ -16,6 +16,10 @@ const { styleSheet, css, condition } = createHooks({
     hover: { all: ["&:hover", "@media (hover:hover)"] },
   },
   debug: true,
+  sort: {
+    overrides: true,
+    properties: true,
+  },
   fallback: "unset",
 });
 

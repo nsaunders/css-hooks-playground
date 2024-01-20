@@ -73,6 +73,10 @@ export function buildHooksSystem(stringify = genericStringify) {
     hooks: hooksConfig,
     fallback,
     debug,
+    sort: {
+      properties: sortProperties = true,
+      overrides: sortOverrides = true,
+    } = {},
     hookNameToId: customHookNameToId,
   }) {
     const [space, newline] = debug ? [" ", "\n"] : ["", ""];
@@ -186,15 +190,25 @@ export function buildHooksSystem(stringify = genericStringify) {
     function css(...args) {
       const style = {};
       let conditionCount = 0;
-      for (const rule of JSON.parse(JSON.stringify(args)).flatMap((x) =>
-        "overrides" in x
-          ? (() => {
-              const { overrides } = x;
-              delete x.overrides;
-              return [x, ...overrides];
-            })()
-          : [x]
-      )) {
+      const rules = JSON.parse(JSON.stringify(args))
+        .filter((rule) => rule)
+        .reduce(
+          ([defaults, overrides], rule) => {
+            if (rule.overrides) {
+              defaults.push(rule);
+              (sortOverrides ? overrides : defaults).push(...rule.overrides);
+              delete rule.overrides;
+            } else {
+              defaults.push(rule);
+            }
+            return [defaults, overrides];
+          },
+          [[], []]
+        )
+        .reduce((a, b) => {
+          return a.concat(b);
+        }, []);
+      for (const rule of rules) {
         if (!rule || typeof rule !== "object") {
           continue;
         }
@@ -239,7 +253,9 @@ export function buildHooksSystem(stringify = genericStringify) {
             }
             const fallbackValue =
               property in style ? style[property] : fallback || "unset";
-            delete style[property];
+            if (sortProperties) {
+              delete style[property];
+            }
             style[
               property
             ] = `var(--${conditionId}-1,${space}${stringifiedValue})${space}var(--${conditionId}-0,${space}${fallbackValue})`;
@@ -247,7 +263,9 @@ export function buildHooksSystem(stringify = genericStringify) {
           continue;
         }
         for (const [property, value] of Object.entries(rule)) {
-          delete style[property];
+          if (sortProperties) {
+            delete style[property];
+          }
           style[property] = value;
         }
       }
