@@ -186,7 +186,7 @@ export function buildHooksSystem(stringify = genericStringify) {
     function css(...args) {
       const style = {};
       let conditionCount = 0;
-      const rules = JSON.parse(JSON.stringify(args)).flatMap((x) =>
+      for (const rule of JSON.parse(JSON.stringify(args)).flatMap((x) =>
         "overrides" in x
           ? (() => {
               const { overrides } = x;
@@ -194,8 +194,7 @@ export function buildHooksSystem(stringify = genericStringify) {
               return [x, ...overrides];
             })()
           : [x]
-      );
-      for (const rule of rules) {
+      )) {
         if (!rule || typeof rule !== "object") {
           continue;
         }
