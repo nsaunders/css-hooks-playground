@@ -62,6 +62,12 @@ function normalizeCondition(cond) {
   return { [operator]: [head, normalizeCondition({ [operator]: tail })] };
 }
 
+function condition(a) {
+  return function (b) {
+    return [a, b];
+  };
+}
+
 export function buildHooksSystem(stringify = genericStringify) {
   return function createHooks({
     hooks: hooksConfig,
@@ -109,14 +115,16 @@ export function buildHooksSystem(stringify = genericStringify) {
               return it(id, hookCondition.not, 1);
             }
 
-            if ("and" in hookCondition || "or" in hookCondition) {
-              const operator = hookCondition.and ? "and" : "or";
+            if ("all" in hookCondition || "any" in hookCondition) {
+              const operator = hookCondition.all ? "all" : "any";
               it(`${id}A`, hookCondition[operator][0]);
               it(`${id}B`, hookCondition[operator][1]);
-              if (operator === "and") {
+              if (operator === "all") {
+                // and
                 sheet += `${indent}--${id}-0:${space}var(--${id}A-0)${space}var(--${id}B-0);${newline}`;
                 sheet += `${indent}--${id}-1:${space}var(--${id}A-1,${space}var(--${id}B-1));${newline}`;
               } else {
+                // or
                 sheet += `${indent}--${id}-0:${space}var(--${id}A-0,${space}var(--${id}B-0));${newline}`;
                 sheet += `${indent}--${id}-1:${space}var(--${id}A-1)${space}var(--${id}B-1);${newline}`;
               }
@@ -136,8 +144,8 @@ export function buildHooksSystem(stringify = genericStringify) {
               return it(id, hookCondition.not, 1);
             }
 
-            if ("and" in hookCondition || "or" in hookCondition) {
-              const operator = hookCondition.and ? "and" : "or";
+            if ("all" in hookCondition || "any" in hookCondition) {
+              const operator = hookCondition.all ? "all" : "any";
               it(`${id}A`, hookCondition[operator][0]);
               it(`${id}B`, hookCondition[operator][1]);
               return;
@@ -175,10 +183,19 @@ export function buildHooksSystem(stringify = genericStringify) {
       return sheet;
     }
 
-    function css() {
+    function css(...args) {
       const style = {};
       let conditionCount = 0;
-      for (const rule of arguments) {
+      const rules = JSON.parse(JSON.stringify(args)).flatMap((x) =>
+        "overrides" in x
+          ? (() => {
+              const { overrides } = x;
+              delete x.overrides;
+              return [x, ...overrides];
+            })()
+          : [x]
+      );
+      for (const rule of rules) {
         if (!rule || typeof rule !== "object") {
           continue;
         }
@@ -199,14 +216,16 @@ export function buildHooksSystem(stringify = genericStringify) {
                 style[`--${name}-0`] = `var(--${inner}-1)`;
                 style[`--${name}-1`] = `var(--${inner}-0)`;
               }
-              if (cond.and || cond.or) {
-                const operator = cond.and ? "and" : "or";
+              if (cond.all || cond.any) {
+                const operator = cond.all ? "all" : "any";
                 const a = it(`${name}A`, cond[operator][0]);
                 const b = it(`${name}B`, cond[operator][1]);
-                if (operator === "and") {
+                if (operator === "all") {
+                  // and
                   style[`--${name}-0`] = `var(--${a}-0)${space}var(--${b}-0)`;
                   style[`--${name}-1`] = `var(--${a}-1,${space}var(--${b}-1))`;
                 } else {
+                  // or
                   style[`--${name}-0`] = `var(--${a}-0,${space}var(--${b}-0))`;
                   style[`--${name}-1`] = `var(--${a}-1)${space}var(--${b}-1)`;
                 }
@@ -236,22 +255,6 @@ export function buildHooksSystem(stringify = genericStringify) {
       return style;
     }
 
-    return { styleSheet, css };
+    return { styleSheet, css, condition };
   };
-}
-
-export function all(...and) {
-  return { and };
-}
-
-export function any(...or) {
-  return { or };
-}
-
-export function not(not) {
-  return { not };
-}
-
-export function rs(...args) {
-  return args;
 }
