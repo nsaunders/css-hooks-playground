@@ -54,6 +54,15 @@ export type Rule<HookName, CSSProperties> = CSSProperties & {
 };
 
 /**
+ * This type exists to ensure that the experimental nature of the type is well-documented
+ *
+ * @typeParam T - The experimental type
+ *
+ * @experimental
+ */
+export type Experimental<T> = T;
+
+/**
  * The type of the `css` function, used to transform a {@link Rule} into a flat
  * style object
  *
@@ -74,10 +83,8 @@ export type CssFn<HookName, CSSProperties> = (
 
   /**
    * A list of style objects, each optionally enhanced with conditional styles
-   *
-   * @experimental
    */
-  ...rules: (Rule<HookName, CSSProperties> | undefined)[]
+  ...rules: Experimental<(Rule<HookName, CSSProperties> | undefined)[]>
 ) => CSSProperties;
 
 /**
@@ -137,7 +144,7 @@ export interface Config<Hooks> {
 
   /**
    * Options for sorting declarations when multiple rules are passed to the
-   * `css` function
+   * {@link CssFn | `css`} function
    *
    * @experimental
    */
@@ -151,9 +158,9 @@ export interface Config<Hooks> {
      * giving the properties declared within the highest priority within that
      * scope.
      *
-     * @defaultValue true
-     *
      * @experimental
+     *
+     * @defaultValue true
      */
     properties?: boolean;
 
@@ -169,9 +176,9 @@ export interface Config<Hooks> {
      *   the `style` prop has the standard type for CSS Properties with no
      *   `on` field).
      *
-     * @defaultValue true
-     *
      * @experimental
+     *
+     * @defaultValue true
      */
     conditionalStyles?: boolean;
   };
@@ -190,7 +197,7 @@ export interface Config<Hooks> {
 }
 
 /**
- * The `css` function used to define enhanced styles, along with the style sheet required to support it
+ * The {@link CssFn | `css`} function used to define enhanced styles, along with the style sheet required to support it
  *
  * @typeParam HookName - The name of the hooks available for use in style
  * conditions
