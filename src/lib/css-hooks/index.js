@@ -251,8 +251,8 @@ export function buildHooksSystem(stringify = genericStringify) {
               if (!(property in style)) {
                 return fallback;
               }
-              const stringified = stringify(style[property]);
-              return stringified === null ? fallback : stringified;
+              const stringifiedValue = stringify(property, style[property]);
+              return stringifiedValue === null ? fallback : stringifiedValue;
             })();
             if (sortProperties) {
               delete style[property];
