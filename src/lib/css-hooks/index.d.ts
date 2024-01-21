@@ -34,6 +34,21 @@ export type StringifyFn = (
   value: unknown
 ) => string | null;
 
+export type Rule<HookName, CSSProperties> = CSSProperties & {
+  /**
+   * Conditional styles, where the second item in each entry represents
+   * the declarations and the first item expresses the condition under
+   * which those declarations apply
+   *
+   * @remarks
+   * One way to think about this structure is like a record. (Consider the
+   * return value of `Object.entries({ ... })`.) However, because a normal
+   * record is unable to represent advanced conditions, it is necessary to
+   * model conditional styles as an array of tuples.
+   */
+  on?: [Condition<HookName>, CSSProperties][];
+};
+
 /**
  * The type of the `css` function, used to transform a style object enhanced
  * with conditional styles into a flat style object
@@ -41,48 +56,81 @@ export type StringifyFn = (
  * @typeParam HookName - The name of the hooks available for use in style
  * conditions
  *
- * @typeParam CSSProperties - The type of a standard style object, typically
- * defined by a UI framework (e.g. React's `CSSProperties` type)
+ * @typeParam CSSProperties - The type of a standard (flat) style object,
+ * typically defined by an app framework (e.g. React's `CSSProperties` type)
  *
  * @returns A flat style object, with dynamic values derived from the
  * conditional styles specified
  */
 export type CssFn<HookName, CSSProperties> = (
   /**
-   * A list of rules to transform
-   *
-   * @remarks
-   * Each rule is a style object, optionally enhanced with conditional styles
+   * A style object, optionally enhanced with conditional styles
    */
-  ...rules: (
-    | (CSSProperties & {
-        on?: [Condition<HookName>, CSSProperties][];
-      })
-    | undefined
-  )[]
+  rule: Rule<HookName, CSSProperties>,
+
+  /**
+   * A list of style objects, each optionally enhanced with conditional styles
+   *
+   * @experimental
+   */
+  ...rules: (Rule<HookName, CSSProperties> | undefined)[]
 ) => CSSProperties;
 
 /**
- * The type of the `condition` function used to define conditional overrides
+ * A basic hook implementation, which uses CSS syntax to define a selector or
+ * at-rule
+ *
+ * Two types are supported:
+ * 1. A selector, where `&` is used as a placeholder for the element to which
+ *    the condition applies. The `&` character must appear somewhere.
+ * 2. A `@media`, `@container`, or `@supports` at-rule. The value must begin
+ *    with one of these keywords, followed by a space.
  */
-export type ConditionFn<HookName, CSSProperties> = (
-  /** The condition under which the specified properties should apply */
-  condition: Condition<HookName>
-) => (properties: CSSProperties) => [Condition<HookName>, CSSProperties];
-
 export type HookImpl =
   | `${string}&${string}`
   | `@${"media" | "container" | "supports"} ${string}`;
 
-export type CreateHooksFn<CSSProperties> = <
-  const HooksConfig extends Record<string, Condition<HookImpl>>
->(config: {
-  hooks: HooksConfig;
+export interface Config<Hooks> {
+  /**
+   * The hooks to make available for use in conditional styles
+   */
+  hooks: Hooks;
 
+  /**
+   * The fallback keyword to use when no other value is available. The
+   * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/revert-layer | `revert-layer`}
+   * keyword is functionally the best option, but
+   * {@link https://developer.mozilla.org/en-US/docs/Web/CSS/unset | `unset`}
+   * has better compatibility.
+   *
+   * @remarks
+   * It is currently reported that `revert-layer` has very limited browser
+   * support, but it seems to have better support within inline styles.
+   * Unfortunately, the published data make no distinction between CSS and
+   * inline styles. Until compatibility is better-understood, this is a
+   * "required option" to allow a sensible default to be chosen in the future
+   * without breaking compatibility.
+   */
   fallback: "revert-layer" | "unset";
 
+  /**
+   * Whether to enable debug mode
+   *
+   * @remarks
+   * When debug mode is enabled:
+   * 1. Hook identifiers (underlying CSS variables) are tagged with user-defined
+   *    hook names.
+   * 2. Extra whitespace is included in the style sheet and inline styles for
+   *    enhanced readability
+   */
   debug?: boolean;
 
+  /**
+   * Options for sorting declarations when multiple rules are passed to the
+   * `css` function
+   *
+   * @experimental
+   */
   sort?: {
     /**
      * When enabled, the last property declared is sorted to the end, giving it
@@ -129,7 +177,22 @@ export type CreateHooksFn<CSSProperties> = <
       ? HookName
       : string
   ) => string;
-}) => HooksConfig extends Record<infer HookName, unknown>
+}
+
+/**
+ * The function used to define hooks and related configuration
+ *
+ * @typeParam CSSProperties - The type of a standard (flat) style object,
+ * typically defined by an app framework (e.g. React's `CSSProperties` type)
+ *
+ * @param config - The configuration used to define hooks and adjust the related
+ * functionality as needed depending on use case
+ */
+export type CreateHooksFn<CSSProperties> = <
+  Hooks extends Record<string, Condition<HookImpl>>
+>(
+  config: Config<Hooks>
+) => Hooks extends Record<infer HookName, unknown>
   ? {
       styleSheet: () => string;
       css: CssFn<HookName, CSSProperties>;

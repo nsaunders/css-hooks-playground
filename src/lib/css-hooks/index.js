@@ -181,10 +181,10 @@ export function buildHooksSystem(stringify = genericStringify) {
       return sheet;
     }
 
-    function css(...args) {
+    function css(arg, ...args) {
       const style = {};
       let conditionCount = 0;
-      const rules = JSON.parse(JSON.stringify(args))
+      const rules = JSON.parse(JSON.stringify([arg, ...args]))
         .filter((rule) => rule)
         .reduce(
           ([baseStyles, conditionalStyles], rule) => {
