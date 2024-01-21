@@ -1,5 +1,5 @@
 /**
- * The condition under which a given hook or property applies
+ * The condition under which a given hook or declaration applies
  *
  * @typeParam S - The basic type of condition to enhance with boolean operations
  */
@@ -36,27 +36,27 @@ export type StringifyFn = (
 
 /**
  * The type of the `css` function, used to transform a style object enhanced
- * with hooks into a flat map of declarations
+ * with conditional styles into a flat style object
  *
- * @typeParam HookName - The name of the hooks available for use in conditional
- * overrides
+ * @typeParam HookName - The name of the hooks available for use in style
+ * conditions
  *
  * @typeParam CSSProperties - The type of a standard style object, typically
  * defined by a UI framework (e.g. React's `CSSProperties` type)
  *
- * @returns An ordinary style object representing a flat list of declarations,
- * with dynamic values derived from the conditional overrides specified
+ * @returns A flat style object, with dynamic values derived from the
+ * conditional styles specified
  */
 export type CssFn<HookName, CSSProperties> = (
   /**
    * A list of rules to transform
    *
    * @remarks
-   * Each rule is a style object, optionally enhanced with conditional overrides
+   * Each rule is a style object, optionally enhanced with conditional styles
    */
   ...rules: (
     | (CSSProperties & {
-        overrides?: [Condition<HookName>, CSSProperties][];
+        on?: [Condition<HookName>, CSSProperties][];
       })
     | undefined
   )[]
@@ -89,7 +89,7 @@ export type CreateHooksFn<CSSProperties> = <
      * the highest priority.
      *
      * @remarks
-     * Within a given rule, overrides are always treated as the last entry,
+     * Within a given rule, conditional styles are always treated as the last entry,
      * giving the properties declared within the highest priority within that
      * scope.
      *
@@ -100,7 +100,7 @@ export type CreateHooksFn<CSSProperties> = <
     properties?: boolean;
 
     /**
-     * When enabled, overrides are sorted to the end of the list of rules passed
+     * When enabled, conditional styles are sorted to the end of the list of rules passed
      * to the {@link CssFn}, giving them the highest priority.
      *
      * @remarks
@@ -109,13 +109,13 @@ export type CreateHooksFn<CSSProperties> = <
      * - you expose a `style` prop allowing client overrides; and
      * - you wish to hide CSS Hooks as an implementation detail (meaning that
      *   the `style` prop has the standard type for CSS Properties with no
-     *   `overrides` field).
+     *   `on` field).
      *
      * @defaultValue true
      *
      * @experimental
      */
-    overrides?: boolean;
+    conditionalStyles?: boolean;
   };
 
   /**
@@ -133,7 +133,6 @@ export type CreateHooksFn<CSSProperties> = <
   ? {
       styleSheet: () => string;
       css: CssFn<HookName, CSSProperties>;
-      condition: ConditionFn<HookName, CSSProperties>;
     }
   : never;
 

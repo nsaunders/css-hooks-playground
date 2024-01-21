@@ -62,12 +62,6 @@ function normalizeCondition(cond) {
   return { [operator]: [head, normalizeCondition({ [operator]: tail })] };
 }
 
-function condition(a) {
-  return function (b) {
-    return [a, b];
-  };
-}
-
 export function buildHooksSystem(stringify = genericStringify) {
   return function createHooks({
     hooks: hooksConfig,
@@ -75,7 +69,7 @@ export function buildHooksSystem(stringify = genericStringify) {
     debug,
     sort: {
       properties: sortProperties = true,
-      overrides: sortOverrides = true,
+      conditionalStyles: sortConditionalStyles = true,
     } = {},
     hookNameToId: customHookNameToId,
   }) {
@@ -193,15 +187,17 @@ export function buildHooksSystem(stringify = genericStringify) {
       const rules = JSON.parse(JSON.stringify(args))
         .filter((rule) => rule)
         .reduce(
-          ([defaults, overrides], rule) => {
-            if (rule.overrides) {
-              defaults.push(rule);
-              (sortOverrides ? overrides : defaults).push(...rule.overrides);
-              delete rule.overrides;
+          ([baseStyles, conditionalStyles], rule) => {
+            if (rule.on) {
+              baseStyles.push(rule);
+              (sortConditionalStyles ? conditionalStyles : baseStyles).push(
+                ...rule.on
+              );
+              delete rule.on;
             } else {
-              defaults.push(rule);
+              baseStyles.push(rule);
             }
-            return [defaults, overrides];
+            return [baseStyles, conditionalStyles];
           },
           [[], []]
         )
@@ -277,6 +273,6 @@ export function buildHooksSystem(stringify = genericStringify) {
       return style;
     }
 
-    return { styleSheet, css, condition };
+    return { styleSheet, css };
   };
 }

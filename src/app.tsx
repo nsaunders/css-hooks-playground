@@ -17,7 +17,7 @@ const { styleSheet, css } = createHooks({
   },
   debug: true,
   sort: {
-    overrides: true,
+    conditionalStyles: true,
     properties: true,
   },
   fallback: "unset",
@@ -39,17 +39,26 @@ export function App() {
             key={x}
             style={css({
               textAlign: "center",
-              overrides: [
-                condition(x)({
-                  background: "black",
-                  color: "white",
-                }),
-                condition({ all: ["hover", { not: x }] })({
-                  background: "#ccc",
-                }),
-                condition({ all: ["hover", x] })({
-                  background: "#333",
-                }),
+              on: [
+                [
+                  x,
+                  {
+                    background: "black",
+                    color: "white",
+                  },
+                ],
+                [
+                  { all: ["hover", { not: x }] },
+                  {
+                    background: "#ccc",
+                  },
+                ],
+                [
+                  { all: ["hover", x] },
+                  {
+                    background: "#333",
+                  },
+                ],
               ],
             })}
           >
@@ -62,10 +71,13 @@ export function App() {
       <ul style={{ fontSize: "1.5em", fontWeight: 700 }}>
         <li
           style={css({
-            overrides: [
-              condition({ any: ["a", "b", "c", "d", "e", "f"] })({
-                color: mutedColor,
-              }),
+            on: [
+              [
+                { any: ["a", "b", "c", "d", "e", "f"] },
+                {
+                  color: mutedColor,
+                },
+              ],
             ],
           })}
         >
@@ -73,10 +85,13 @@ export function App() {
         </li>
         <li
           style={css({
-            overrides: [
-              condition({ not: { any: ["a", "b", "c", "d", "e", "f"] } })({
-                color: mutedColor,
-              }),
+            on: [
+              [
+                { not: { any: ["a", "b", "c", "d", "e", "f"] } },
+                {
+                  color: mutedColor,
+                },
+              ],
             ],
           })}
         >
@@ -84,10 +99,13 @@ export function App() {
         </li>
         <li
           style={css({
-            overrides: [
-              condition({ not: { all: ["a", "b", "c", "d", "e", "f"] } })({
-                color: mutedColor,
-              }),
+            on: [
+              [
+                { not: { all: ["a", "b", "c", "d", "e", "f"] } },
+                {
+                  color: mutedColor,
+                },
+              ],
             ],
           })}
         >
@@ -95,18 +113,21 @@ export function App() {
         </li>
         <li
           style={css({
-            overrides: [
-              condition({
-                not: {
-                  any: [
-                    { all: ["a", "b"] },
-                    { all: ["c", "d"] },
-                    { all: ["e", "f"] },
-                  ],
+            on: [
+              [
+                {
+                  not: {
+                    any: [
+                      { all: ["a", "b"] },
+                      { all: ["c", "d"] },
+                      { all: ["e", "f"] },
+                    ],
+                  },
                 },
-              })({
-                color: mutedColor,
-              }),
+                {
+                  color: mutedColor,
+                },
+              ],
             ],
           })}
         >
@@ -114,17 +135,24 @@ export function App() {
         </li>
         <li
           style={css({
-            overrides: [
-              condition({
-                not: {
-                  any: [
-                    { all: ["a", "b", "c", { not: { any: ["d", "e", "f"] } }] },
-                    { all: ["d", "e", "f", { not: { any: ["a", "b", "c"] } }] },
-                  ],
+            on: [
+              [
+                {
+                  not: {
+                    any: [
+                      {
+                        all: ["a", "b", "c", { not: { any: ["d", "e", "f"] } }],
+                      },
+                      {
+                        all: ["d", "e", "f", { not: { any: ["a", "b", "c"] } }],
+                      },
+                    ],
+                  },
                 },
-              })({
-                color: mutedColor,
-              }),
+                {
+                  color: mutedColor,
+                },
+              ],
             ],
           })}
         >
