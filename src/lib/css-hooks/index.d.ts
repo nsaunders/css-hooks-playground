@@ -66,7 +66,7 @@ export type CssFn<HookName, CSSProperties> = (
  * The type of the `condition` function used to define conditional overrides
  */
 export type ConditionFn<HookName, CSSProperties> = (
-  /** The condition under which the condition should apply */
+  /** The condition under which the specified properties should apply */
   condition: Condition<HookName>
 ) => (properties: CSSProperties) => [Condition<HookName>, CSSProperties];
 

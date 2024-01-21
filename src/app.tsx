@@ -5,7 +5,7 @@ import { CSSProperties } from "react";
 
 const createHooks = buildHooksSystem<CSSProperties>(stringifyValue);
 
-const { styleSheet, css, condition } = createHooks({
+const { styleSheet, css } = createHooks({
   hooks: {
     a: ":has([name='a']:checked) &",
     b: ":has([name='b']:checked) &",
