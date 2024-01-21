@@ -71,7 +71,7 @@ function condition(a) {
 export function buildHooksSystem(stringify = genericStringify) {
   return function createHooks({
     hooks: hooksConfig,
-    fallback,
+    fallback = "unset",
     debug,
     sort: {
       properties: sortProperties = true,
@@ -251,8 +251,13 @@ export function buildHooksSystem(stringify = genericStringify) {
             if (stringifiedValue === null) {
               continue;
             }
-            const fallbackValue =
-              property in style ? style[property] : fallback || "unset";
+            const fallbackValue = (() => {
+              if (!(property in style)) {
+                return fallback;
+              }
+              const stringified = stringify(style[property]);
+              return stringified === null ? fallback : stringified;
+            })();
             if (sortProperties) {
               delete style[property];
             }
