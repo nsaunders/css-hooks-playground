@@ -24,7 +24,8 @@ export type StringifyFn = (
    *
    * @remarks
    * For example, React uses this to determine whether to apply a `px` suffix to
-   * a number value.
+   * a number value. (A property like `width` would need to specify the `px`
+   * unit, while `z-index` would not.)
    */
   propertyName: string,
 
@@ -34,6 +35,9 @@ export type StringifyFn = (
   value: unknown
 ) => string | null;
 
+/**
+ * A style object, optionally enhanced with inline styles
+ */
 export type Rule<HookName, CSSProperties> = CSSProperties & {
   /**
    * Conditional styles, where the second item in each entry represents
@@ -50,8 +54,8 @@ export type Rule<HookName, CSSProperties> = CSSProperties & {
 };
 
 /**
- * The type of the `css` function, used to transform a style object enhanced
- * with conditional styles into a flat style object
+ * The type of the `css` function, used to transform a {@link Rule} into a flat
+ * style object
  *
  * @typeParam HookName - The name of the hooks available for use in style
  * conditions
@@ -80,16 +84,22 @@ export type CssFn<HookName, CSSProperties> = (
  * A basic hook implementation, which uses CSS syntax to define a selector or
  * at-rule
  *
+ * @remarks
  * Two types are supported:
  * 1. A selector, where `&` is used as a placeholder for the element to which
  *    the condition applies. The `&` character must appear somewhere.
  * 2. A `@media`, `@container`, or `@supports` at-rule. The value must begin
  *    with one of these keywords, followed by a space.
+ *
+ * These can be combined using the {@link Condition} structure to form complex logic.
  */
 export type HookImpl =
   | `${string}&${string}`
   | `@${"media" | "container" | "supports"} ${string}`;
 
+/**
+ * The configuration used to set up hooks
+ */
 export interface Config<Hooks> {
   /**
    * The hooks to make available for use in conditional styles
@@ -149,7 +159,7 @@ export interface Config<Hooks> {
 
     /**
      * When enabled, conditional styles are sorted to the end of the list of rules passed
-     * to the {@link CssFn}, giving them the highest priority.
+     * to the `css` function, giving them the highest priority.
      *
      * @remarks
      * You may want to consider disabling this option when
@@ -180,6 +190,27 @@ export interface Config<Hooks> {
 }
 
 /**
+ * The `css` function used to define enhanced styles, along with the style sheet required to support it
+ *
+ * @typeParam HookName - The name of the hooks available for use in style
+ * conditions
+ *
+ * @typeParam CSSProperties - The type of a standard (flat) style object,
+ * typically defined by an app framework (e.g. React's `CSSProperties` type)
+ */
+interface Hooks<HookName, CSSProperties> {
+  /**
+   * The `css` function used to define enhanced styles
+   */
+  css: CssFn<HookName, CSSProperties>;
+
+  /**
+   * The style sheet required to support the configured hooks
+   */
+  styleSheet: () => string;
+}
+
+/**
  * The function used to define hooks and related configuration
  *
  * @typeParam CSSProperties - The type of a standard (flat) style object,
@@ -193,12 +224,22 @@ export type CreateHooksFn<CSSProperties> = <
 >(
   config: Config<Hooks>
 ) => Hooks extends Record<infer HookName, unknown>
-  ? {
-      styleSheet: () => string;
-      css: CssFn<HookName, CSSProperties>;
-    }
+  ? Hooks<HookName, CSSProperties>
   : never;
 
+/**
+ * Creates a flavor of CSS Hooks tailored to a specific app framework.
+ *
+ * @param stringify - The function used to stringify values when merging
+ * conditional styles
+ *
+ * @returns The `createHooks` function used to bootstrap CSS Hooks within an app
+ * or component library
+ *
+ * @remarks
+ * Primarily for internal use, advanced use cases, or when an appropriate
+ * framework integration is not provided
+ */
 declare function buildHooksSystem<CSSProperties>(
   stringify?: StringifyFn
 ): CreateHooksFn<CSSProperties>;
