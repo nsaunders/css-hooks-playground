@@ -227,11 +227,11 @@ interface Hooks<HookName, CSSProperties> {
  * functionality as needed depending on use case
  */
 export type CreateHooksFn<CSSProperties> = <
-  Hooks extends Record<string, Condition<HookImpl>>
+  H extends Record<string, Condition<HookImpl>>
 >(
-  config: Config<Hooks>
-) => Hooks extends Record<infer HookName, unknown>
-  ? Hooks<HookName, CSSProperties>
+  config: Config<H>
+) => H extends Record<infer HookName, unknown>
+  ? Hooks<H, CSSProperties>
   : never;
 
 /**
