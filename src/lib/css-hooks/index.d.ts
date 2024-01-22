@@ -231,7 +231,7 @@ export type CreateHooksFn<CSSProperties> = <
 >(
   config: Config<H>
 ) => H extends Record<infer HookName, unknown>
-  ? Hooks<H, CSSProperties>
+  ? Hooks<HookName, CSSProperties>
   : never;
 
 /**
