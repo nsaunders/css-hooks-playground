@@ -193,17 +193,11 @@ export function buildHooksSystem(stringify = genericStringify) {
                 if (rule.match) {
                   baseStyles.push(rule);
                   (sortConditionalStyles ? conditionalStyles : baseStyles).push(
-                    ...rule.match(
-                      function (condition, styles) {
-                        console.log({ condition, styles });
-                        return [condition, styles];
-                      },
-                      {
-                        all: (...all) => ({ all }),
-                        any: (...any) => ({ any }),
-                        not: (not) => ({ not }),
-                      }
-                    )
+                    ...rule.match((condition, styles) => [condition, styles], {
+                      all: (...all) => ({ all }),
+                      any: (...any) => ({ any }),
+                      not: (not) => ({ not }),
+                    })
                   );
                 } else {
                   baseStyles.push(rule);
