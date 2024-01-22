@@ -35,6 +35,18 @@ export type StringifyFn = (
   value: unknown
 ) => string | null;
 
+export type MatchFn<HookName, CSSProperties> = (
+  on: (
+    condition: Condition<HookName>,
+    styles: CSSProperties
+  ) => [Condition<HookName>, CSSProperties],
+  helpers: {
+    all: (...conditions: Condition<HookName>[]) => Condition<HookName>;
+    any: (...conditions: Condition<HookName>[]) => Condition<HookName>;
+    not: (condition: Condition<HookName>) => Condition<HookName>;
+  }
+) => [Condition<HookName>, CSSProperties][];
+
 /**
  * A style object, optionally enhanced with inline styles
  */
@@ -50,7 +62,7 @@ export type Rule<HookName, CSSProperties> = CSSProperties & {
    * record is unable to represent advanced conditions, it is necessary to
    * model conditional styles as an array of tuples.
    */
-  on?: [Condition<HookName>, CSSProperties][];
+  match?: MatchFn<HookName, CSSProperties>;
 };
 
 /**

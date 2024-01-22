@@ -181,29 +181,42 @@ export function buildHooksSystem(stringify = genericStringify) {
       return sheet;
     }
 
-    function css(arg, ...args) {
+    function css(...args) {
       const style = {};
       let conditionCount = 0;
-      const rules = JSON.parse(JSON.stringify([arg, ...args]))
-        .filter((rule) => rule)
-        .reduce(
-          ([baseStyles, conditionalStyles], rule) => {
-            if (rule.on) {
-              baseStyles.push(rule);
-              (sortConditionalStyles ? conditionalStyles : baseStyles).push(
-                ...rule.on
-              );
-              delete rule.on;
-            } else {
-              baseStyles.push(rule);
-            }
-            return [baseStyles, conditionalStyles];
-          },
-          [[], []]
+      const rules = JSON.parse(
+        JSON.stringify(
+          args
+            .filter((rule) => rule)
+            .reduce(
+              ([baseStyles, conditionalStyles], rule) => {
+                if (rule.match) {
+                  baseStyles.push(rule);
+                  (sortConditionalStyles ? conditionalStyles : baseStyles).push(
+                    ...rule.match(
+                      function (condition, styles) {
+                        console.log({ condition, styles });
+                        return [condition, styles];
+                      },
+                      {
+                        all: (...all) => ({ all }),
+                        any: (...any) => ({ any }),
+                        not: (not) => ({ not }),
+                      }
+                    )
+                  );
+                } else {
+                  baseStyles.push(rule);
+                }
+                return [baseStyles, conditionalStyles];
+              },
+              [[], []]
+            )
+            .reduce((a, b) => {
+              return a.concat(b);
+            }, [])
         )
-        .reduce((a, b) => {
-          return a.concat(b);
-        }, []);
+      );
       for (const rule of rules) {
         if (!rule || typeof rule !== "object") {
           continue;

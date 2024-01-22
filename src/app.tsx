@@ -39,26 +39,17 @@ export function App() {
             key={x}
             style={css({
               textAlign: "center",
-              on: [
-                [
-                  x,
-                  {
-                    background: "black",
-                    color: "white",
-                  },
-                ],
-                [
-                  { all: ["hover", { not: x }] },
-                  {
-                    background: "#ccc",
-                  },
-                ],
-                [
-                  { all: ["hover", x] },
-                  {
-                    background: "#333",
-                  },
-                ],
+              match: (on, { all, not }) => [
+                on(x, {
+                  background: "black",
+                  color: "white",
+                }),
+                on(all("hover", not(x)), {
+                  background: "#ccc",
+                }),
+                on(all("hover", x), {
+                  background: "#333",
+                }),
               ],
             })}
           >
@@ -71,13 +62,10 @@ export function App() {
       <ul style={{ fontSize: "1.5em", fontWeight: 700 }}>
         <li
           style={css({
-            on: [
-              [
-                { any: ["a", "b", "c", "d", "e", "f"] },
-                {
-                  color: mutedColor,
-                },
-              ],
+            match: (on, { any }) => [
+              on(any("a", "b", "c", "d", "e", "f"), {
+                color: mutedColor,
+              }),
             ],
           })}
         >
@@ -85,13 +73,10 @@ export function App() {
         </li>
         <li
           style={css({
-            on: [
-              [
-                { not: { any: ["a", "b", "c", "d", "e", "f"] } },
-                {
-                  color: mutedColor,
-                },
-              ],
+            match: (on, { any, not }) => [
+              on(not(any("a", "b", "c", "d", "e", "f")), {
+                color: mutedColor,
+              }),
             ],
           })}
         >
@@ -99,13 +84,10 @@ export function App() {
         </li>
         <li
           style={css({
-            on: [
-              [
-                { not: { all: ["a", "b", "c", "d", "e", "f"] } },
-                {
-                  color: mutedColor,
-                },
-              ],
+            match: (on, { all, not }) => [
+              on(not(all("a", "b", "c", "d", "e", "f")), {
+                color: mutedColor,
+              }),
             ],
           })}
         >
@@ -113,21 +95,10 @@ export function App() {
         </li>
         <li
           style={css({
-            on: [
-              [
-                {
-                  not: {
-                    any: [
-                      { all: ["a", "b"] },
-                      { all: ["c", "d"] },
-                      { all: ["e", "f"] },
-                    ],
-                  },
-                },
-                {
-                  color: mutedColor,
-                },
-              ],
+            match: (on, { all, any, not }) => [
+              on(not(any(all("a", "b"), all("c", "d"), all("e", "f"))), {
+                color: mutedColor,
+              }),
             ],
           })}
         >
@@ -135,24 +106,18 @@ export function App() {
         </li>
         <li
           style={css({
-            on: [
-              [
-                {
-                  not: {
-                    any: [
-                      {
-                        all: ["a", "b", "c", { not: { any: ["d", "e", "f"] } }],
-                      },
-                      {
-                        all: ["d", "e", "f", { not: { any: ["a", "b", "c"] } }],
-                      },
-                    ],
-                  },
-                },
+            match: (on, { all, any, not }) => [
+              on(
+                not(
+                  any(
+                    all("a", "b", "c", not(any("d", "e", "f"))),
+                    all("d", "e", "f", not(any("a", "b", "c")))
+                  )
+                ),
                 {
                   color: mutedColor,
-                },
-              ],
+                }
+              ),
             ],
           })}
         >
