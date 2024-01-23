@@ -35,20 +35,84 @@ export type StringifyFn = (
   value: unknown
 ) => string | null;
 
+/**
+ * The callback used to construct a conditional style group
+ *
+ * @typeParam HookName - The name of the hooks available for use in style
+ * conditions
+ *
+ * @typeParam CSSProperties - The type of a standard (flat) style object,
+ * typically defined by an app framework (e.g. React's `CSSProperties` type)
+ *
+ * @param condition - The condition under which the styles apply
+ *
+ * @param styles - The styles that apply when the specified condition is met
+ *
+ * @returns A list of style objects and the condition under which each one
+ * applies
+ */
+export type MatchOnFn<HookName, CSSProperties> = (
+  condition: Condition<HookName>,
+  styles: CSSProperties
+) => [Condition<HookName>, CSSProperties];
+
+/**
+ * Helper functions used to construct advanced conditions
+ *
+ * @typeParam HookName - The name of the hooks available for use in style
+ * conditions
+ */
+export interface MatchHelpers<HookName> {
+  /**
+   * Creates a condition that is true when all of the conditions passed as
+   * arguments are true.
+   */
+  all(...conditions: Condition<HookName>[]): Condition<HookName>;
+
+  /**
+   * Creates a condition that is true when any of the conditions passed as
+   * arguments is true.
+   */
+  any(...conditions: Condition<HookName>[]): Condition<HookName>;
+
+  /**
+   * Creates a condition that is true when the specified condition is false.
+   */
+  not(condition: Condition<HookName>): Condition<HookName>;
+}
+
+/**
+ * Provides the means by which to declare conditional styles within a
+ * {@link Rule}.
+ *
+ * @typeParam HookName - The name of the hooks available for use in style
+ * conditions
+ *
+ * @typeParam CSSProperties - The type of a standard (flat) style object,
+ * typically defined by an app framework (e.g. React's `CSSProperties` type)
+ *
+ * @returns A list of the conditional styles declared
+ */
 export type MatchFn<HookName, CSSProperties> = (
-  on: (
-    condition: Condition<HookName>,
-    styles: CSSProperties
-  ) => [Condition<HookName>, CSSProperties],
-  helpers: {
-    all: (...conditions: Condition<HookName>[]) => Condition<HookName>;
-    any: (...conditions: Condition<HookName>[]) => Condition<HookName>;
-    not: (condition: Condition<HookName>) => Condition<HookName>;
-  }
+  /**
+   * The callback used to construct a conditional style group
+   */
+  on: MatchOnFn<HookName, CSSProperties>,
+
+  /**
+   * Helper functions used to construct advanced conditions
+   */
+  helpers: MatchHelpers<HookName>
 ) => [Condition<HookName>, CSSProperties][];
 
 /**
  * A style object, optionally enhanced with inline styles
+ *
+ * @typeParam HookName - The name of the hooks available for use in style
+ * conditions
+ *
+ * @typeParam CSSProperties - The type of a standard (flat) style object,
+ * typically defined by an app framework (e.g. React's `CSSProperties` type)
  */
 export type Rule<HookName, CSSProperties> = CSSProperties & {
   /**
@@ -118,6 +182,8 @@ export type HookImpl =
 
 /**
  * The configuration used to set up hooks
+ *
+ * @typeParam Hooks - the hooks configured for use in conditional styles
  */
 export interface Config<Hooks> {
   /**
