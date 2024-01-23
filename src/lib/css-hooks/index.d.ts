@@ -1,7 +1,8 @@
 /**
- * The condition under which a given hook or declaration applies
+ * Represents the conditions under which a given hook or declaration applies.
  *
- * @typeParam S - The basic type of condition to enhance with boolean operations
+ * @typeParam S - The basic type of condition to enhance with boolean
+ * operations.
  */
 export type Condition<S> =
   | S
@@ -10,46 +11,45 @@ export type Condition<S> =
   | { not: Condition<S> };
 
 /**
- * The function used to convert a value into a string
+ * Function to convert a value into a string.
  *
  * @remarks
- * This is needed for merging an override property value with the
- * default/fallback value.
+ * Used for merging an override property value with the default/fallback value.
  *
- * @returns The stringified value, or `null` if the value can't be stringified
+ * @returns The stringified value or `null` if the value can't be stringified.
  */
 export type StringifyFn = (
   /**
-   * The property name corresponding to the value being stringified
+   * The property name corresponding to the value being stringified.
    *
    * @remarks
    * For example, React uses this to determine whether to apply a `px` suffix to
-   * a number value. (A property like `width` would need to specify the `px`
-   * unit, while `z-index` would not.)
+   * a number value. (e.g., `width` needs to specify the `px` unit, while
+   * `z-index` does not.)
    */
   propertyName: string,
 
   /**
-   * The value to stringify
+   * The value to stringify.
    */
   value: unknown
 ) => string | null;
 
 /**
- * The callback used to construct a conditional style group
+ * Callback to construct a conditional style group.
  *
  * @typeParam HookName - The name of the hooks available for use in style
- * conditions
+ * conditions.
  *
  * @typeParam CSSProperties - The type of a standard (flat) style object,
- * typically defined by an app framework (e.g. React's `CSSProperties` type)
+ * typically defined by an app framework (e.g., React's `CSSProperties` type).
  *
- * @param condition - The condition under which the styles apply
+ * @param condition - The condition under which the styles apply.
  *
- * @param styles - The styles that apply when the specified condition is met
+ * @param styles - The styles that apply when the specified condition is met.
  *
  * @returns A list of style objects and the condition under which each one
- * applies
+ * applies.
  */
 export type MatchOnFn<HookName, CSSProperties> = (
   condition: Condition<HookName>,
@@ -57,10 +57,10 @@ export type MatchOnFn<HookName, CSSProperties> = (
 ) => [Condition<HookName>, CSSProperties];
 
 /**
- * Helper functions used to construct advanced conditions
+ * Helper functions used to construct advanced conditions.
  *
  * @typeParam HookName - The name of the hooks available for use in style
- * conditions
+ * conditions.
  */
 export interface MatchHelpers<HookName> {
   /**
@@ -82,90 +82,89 @@ export interface MatchHelpers<HookName> {
 }
 
 /**
- * Provides the means by which to declare conditional styles within a
- * {@link Rule}.
+ * Provides a way to declare conditional styles within a {@link Rule}.
  *
  * @typeParam HookName - The name of the hooks available for use in style
- * conditions
+ * conditions.
  *
  * @typeParam CSSProperties - The type of a standard (flat) style object,
- * typically defined by an app framework (e.g. React's `CSSProperties` type)
+ * typically defined by an app framework (e.g., React's `CSSProperties` type).
  *
- * @returns A list of the conditional styles declared
+ * @returns A list of the conditional styles declared.
  */
 export type MatchFn<HookName, CSSProperties> = (
   /**
-   * The callback used to construct a conditional style group
+   * The callback used to construct a conditional style group.
    */
   on: MatchOnFn<HookName, CSSProperties>,
 
   /**
-   * Helper functions used to construct advanced conditions
+   * Helper functions used to construct advanced conditions.
    */
   helpers: MatchHelpers<HookName>
 ) => [Condition<HookName>, CSSProperties][];
 
 /**
- * A style object, optionally enhanced with inline styles
+ * Represents a style object, optionally enhanced with inline styles.
  *
  * @typeParam HookName - The name of the hooks available for use in style
- * conditions
+ * conditions.
  *
  * @typeParam CSSProperties - The type of a standard (flat) style object,
- * typically defined by an app framework (e.g. React's `CSSProperties` type)
+ * typically defined by an app framework (e.g., React's `CSSProperties` type).
  */
 export type Rule<HookName, CSSProperties> = CSSProperties & {
   /**
-   * Conditional styles, where the second item in each entry represents
-   * the declarations and the first item expresses the condition under
-   * which those declarations apply
+   * Conditional styles, where the second item in each entry represents the
+   * declarations, and the first item expresses the condition under which those
+   * declarations apply.
    *
    * @remarks
-   * One way to think about this structure is like a record. (Consider the
-   * return value of `Object.entries({ ... })`.) However, because a normal
-   * record is unable to represent advanced conditions, it is necessary to
-   * model conditional styles as an array of tuples.
+   * Think of this structure like a record. (Consider the return value of
+   * `Object.entries({ ... })`.) However, because a normal record can't
+   * represent advanced conditions, it's necessary to model conditional styles
+   * as an array of tuples.
    */
   match?: MatchFn<HookName, CSSProperties>;
 };
 
 /**
- * This type exists to ensure that the experimental nature of the type is well-documented
+ * This type exists to highlight the experimental nature of the type.
  *
- * @typeParam T - The experimental type
+ * @typeParam T - The experimental type.
  *
  * @experimental
  */
 export type Experimental<T> = T;
 
 /**
- * The type of the `css` function, used to transform a {@link Rule} into a flat
- * style object
+ * Represents the type of the `css` function, used to transform a {@link Rule}
+ * into a flat style object.
  *
  * @typeParam HookName - The name of the hooks available for use in style
- * conditions
+ * conditions.
  *
  * @typeParam CSSProperties - The type of a standard (flat) style object,
- * typically defined by an app framework (e.g. React's `CSSProperties` type)
+ * typically defined by an app framework (e.g., React's `CSSProperties` type).
  *
  * @returns A flat style object, with dynamic values derived from the
- * conditional styles specified
+ * conditional styles specified.
  */
 export type CssFn<HookName, CSSProperties> = (
   /**
-   * A style object, optionally enhanced with conditional styles
+   * A style object, optionally enhanced with conditional styles.
    */
   rule: Rule<HookName, CSSProperties>,
 
   /**
-   * A list of style objects, each optionally enhanced with conditional styles
+   * A list of style objects, each optionally enhanced with conditional styles.
    */
   ...rules: Experimental<(Rule<HookName, CSSProperties> | undefined)[]>
 ) => CSSProperties;
 
 /**
- * A basic hook implementation, which uses CSS syntax to define a selector or
- * at-rule
+ * Represents a basic hook implementation, using CSS syntax to define a selector or
+ * at-rule.
  *
  * @remarks
  * Two types are supported:
@@ -181,13 +180,13 @@ export type HookImpl =
   | `@${"media" | "container" | "supports"} ${string}`;
 
 /**
- * The configuration used to set up hooks
+ * Represents the configuration used to set up hooks.
  *
- * @typeParam Hooks - the hooks configured for use in conditional styles
+ * @typeParam Hooks - the hooks configured for use in conditional styles.
  */
 export interface Config<Hooks> {
   /**
-   * The hooks to make available for use in conditional styles
+   * The hooks available for use in conditional styles.
    */
   hooks: Hooks;
 
@@ -199,30 +198,29 @@ export interface Config<Hooks> {
    * has better compatibility.
    *
    * @remarks
-   * It is currently reported that `revert-layer` has very limited browser
-   * support, but it seems to have better support within inline styles.
-   * Unfortunately, the published data make no distinction between CSS and
-   * inline styles. Until compatibility is better-understood, this is a
-   * "required option" to allow a sensible default to be chosen in the future
-   * without breaking compatibility.
+   * Currently, `revert-layer` has limited browser support, but it seems to have
+   * better support within inline styles. Unfortunately, the published data make
+   * no distinction between CSS and inline styles. Until compatibility is
+   * better-understood, this is a "required option" to allow a sensible default
+   * to be chosen in the future without breaking compatibility.
    */
   fallback: "revert-layer" | "unset";
 
   /**
-   * Whether to enable debug mode
+   * Whether to enable debug mode.
    *
    * @remarks
    * When debug mode is enabled:
    * 1. Hook identifiers (underlying CSS variables) are tagged with user-defined
    *    hook names.
    * 2. Extra whitespace is included in the style sheet and inline styles for
-   *    enhanced readability
+   *    enhanced readability.
    */
   debug?: boolean;
 
   /**
    * Options for sorting declarations when multiple rules are passed to the
-   * {@link CssFn | `css`} function
+   * {@link CssFn | `css`} function.
    *
    * @experimental
    */
@@ -232,9 +230,9 @@ export interface Config<Hooks> {
      * the highest priority.
      *
      * @remarks
-     * Within a given rule, conditional styles are always treated as the last entry,
-     * giving the properties declared within the highest priority within that
-     * scope.
+     * Within a given rule, conditional styles are always treated as the last
+     * entry, giving the properties declared within the highest priority within
+     * that scope.
      *
      * @experimental
      *
@@ -243,16 +241,16 @@ export interface Config<Hooks> {
     properties?: boolean;
 
     /**
-     * When enabled, conditional styles are sorted to the end of the list of rules passed
-     * to the `css` function, giving them the highest priority.
+     * When enabled, conditional styles are sorted to the end of the list of
+     * rules passed to the `css` function, giving them the highest priority.
      *
      * @remarks
      * You may want to consider disabling this option when
      * - you are publishing a component library;
      * - you expose a `style` prop allowing client overrides; and
      * - you wish to hide CSS Hooks as an implementation detail (meaning that
-     *   the `style` prop has the standard type for CSS Properties with no
-     *   `on` field).
+     *   the `style` prop has the standard type for CSS Properties with no `on`
+     *   field).
      *
      * @experimental
      *
@@ -275,34 +273,35 @@ export interface Config<Hooks> {
 }
 
 /**
- * The {@link CssFn | `css`} function used to define enhanced styles, along with the style sheet required to support it
+ * Represents the {@link CssFn | `css`} function used to define enhanced styles,
+ * along with the style sheet required to support it.
  *
  * @typeParam HookName - The name of the hooks available for use in style
- * conditions
+ * conditions.
  *
  * @typeParam CSSProperties - The type of a standard (flat) style object,
- * typically defined by an app framework (e.g. React's `CSSProperties` type)
+ * typically defined by an app framework (e.g., React's `CSSProperties` type).
  */
 interface Hooks<HookName, CSSProperties> {
   /**
-   * The `css` function used to define enhanced styles
+   * The `css` function used to define enhanced styles.
    */
   css: CssFn<HookName, CSSProperties>;
 
   /**
-   * The style sheet required to support the configured hooks
+   * The style sheet required to support the configured hooks.
    */
   styleSheet: () => string;
 }
 
 /**
- * The function used to define hooks and related configuration
+ * Represents the function used to define hooks and related configuration.
  *
  * @typeParam CSSProperties - The type of a standard (flat) style object,
- * typically defined by an app framework (e.g. React's `CSSProperties` type)
+ * typically defined by an app framework (e.g., React's `CSSProperties` type).
  *
  * @param config - The configuration used to define hooks and adjust the related
- * functionality as needed depending on use case
+ * functionality as needed depending on the use case.
  */
 export type CreateHooksFn<CSSProperties> = <
   H extends Record<string, Condition<HookImpl>>
@@ -316,14 +315,14 @@ export type CreateHooksFn<CSSProperties> = <
  * Creates a flavor of CSS Hooks tailored to a specific app framework.
  *
  * @param stringify - The function used to stringify values when merging
- * conditional styles
+ * conditional styles.
  *
  * @returns The `createHooks` function used to bootstrap CSS Hooks within an app
- * or component library
+ * or component library.
  *
  * @remarks
  * Primarily for internal use, advanced use cases, or when an appropriate
- * framework integration is not provided
+ * framework integration is not provided.
  */
 declare function buildHooksSystem<CSSProperties>(
   stringify?: StringifyFn
