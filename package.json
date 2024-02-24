@@ -3,7 +3,7 @@
     "dev": "vite"
   },
   "devDependencies": {
-    "@css-hooks/react": "^1.8.0",
+    "@css-hooks/react": "^2.0.1",
     "@tsconfig/strictest": "^2.0.2",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",

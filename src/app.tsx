@@ -1,9 +1,4 @@
-import { buildHooksSystem } from "./lib/css-hooks";
-import { stringifyValue } from "@css-hooks/react";
-
-import { CSSProperties } from "react";
-
-const createHooks = buildHooksSystem<CSSProperties>(stringifyValue);
+import { createHooks } from "@css-hooks/react";
 
 const { styleSheet, css } = createHooks({
   hooks: {
@@ -13,7 +8,7 @@ const { styleSheet, css } = createHooks({
     d: ":has([name='d']:checked) &",
     e: ":has([name='e']:checked) &",
     f: ":has([name='f']:checked) &",
-    hover: { all: ["&:hover", "@media (hover:hover)"] },
+    hover: { and: ["&:hover", "@media (hover:hover)"] },
   },
   debug: true,
   sort: {
@@ -39,26 +34,17 @@ export function App() {
             key={x}
             style={css({
               textAlign: "center",
-              on: [
-                [
-                  x,
-                  {
-                    background: "black",
-                    color: "white",
-                  },
-                ],
-                [
-                  { all: ["hover", { not: x }] },
-                  {
-                    background: "#ccc",
-                  },
-                ],
-                [
-                  { all: ["hover", x] },
-                  {
-                    background: "#333",
-                  },
-                ],
+              on: ($, { and, not }) => [
+                $(x, {
+                  background: "black",
+                  color: "white",
+                }),
+                $(and("hover", not(x)), {
+                  background: "#ccc",
+                }),
+                $(and("hover", x), {
+                  background: "#333",
+                }),
               ],
             })}
           >
@@ -71,13 +57,10 @@ export function App() {
       <ul style={{ fontSize: "1.5em", fontWeight: 700 }}>
         <li
           style={css({
-            on: [
-              [
-                { any: ["a", "b", "c", "d", "e", "f"] },
-                {
-                  color: mutedColor,
-                },
-              ],
+            on: ($, { or }) => [
+              $(or("a", "b", "c", "d", "e", "f"), {
+                color: mutedColor,
+              }),
             ],
           })}
         >
@@ -85,9 +68,9 @@ export function App() {
         </li>
         <li
           style={css({
-            on: [
+            on: ($, { not, or }) => [
               [
-                { not: { any: ["a", "b", "c", "d", "e", "f"] } },
+                not(or("a", "b", "c", "d", "e", "f")),
                 {
                   color: mutedColor,
                 },
@@ -99,9 +82,9 @@ export function App() {
         </li>
         <li
           style={css({
-            on: [
+            on: ($, { and, not }) => [
               [
-                { not: { all: ["a", "b", "c", "d", "e", "f"] } },
+                not(and("a", "b", "c", "d", "e", "f")),
                 {
                   color: mutedColor,
                 },
@@ -113,21 +96,10 @@ export function App() {
         </li>
         <li
           style={css({
-            on: [
-              [
-                {
-                  not: {
-                    any: [
-                      { all: ["a", "b"] },
-                      { all: ["c", "d"] },
-                      { all: ["e", "f"] },
-                    ],
-                  },
-                },
-                {
-                  color: mutedColor,
-                },
-              ],
+            on: ($, { and, not, or }) => [
+              $(not(or(and("a", "b"), and("c", "d"), and("e", "f"))), {
+                color: mutedColor,
+              }),
             ],
           })}
         >
@@ -135,24 +107,18 @@ export function App() {
         </li>
         <li
           style={css({
-            on: [
-              [
-                {
-                  not: {
-                    any: [
-                      {
-                        all: ["a", "b", "c", { not: { any: ["d", "e", "f"] } }],
-                      },
-                      {
-                        all: ["d", "e", "f", { not: { any: ["a", "b", "c"] } }],
-                      },
-                    ],
-                  },
-                },
+            on: ($, { and, or, not }) => [
+              $(
+                not(
+                  or(
+                    and("a", "b", "c", not(or("d", "e", "f"))),
+                    and("d", "e", "f", not(or("a", "b", "c")))
+                  )
+                ),
                 {
                   color: mutedColor,
-                },
-              ],
+                }
+              ),
             ],
           })}
         >
